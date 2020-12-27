@@ -18,10 +18,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void tableContextMenuRequested(const QPoint &pos);
+    void desktopRequested();
+
 private:
     Ui::MainWindow *ui;
     QTableWidget *table;
     ClientFetcher *clientFetcher;
+    QString selectedClientName;
     void InitializeTable();
 };
 #endif // MAINWINDOW_H

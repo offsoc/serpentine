@@ -10,16 +10,17 @@ CONFIG += c++11 console
 
 SOURCES += \
     clientfetcher.cpp \
-    clientfetcherthread.cpp \
+    desktop.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     clientfetcher.h \
-    clientfetcherthread.h \
+    desktop.h \
     mainwindow.h
 
 FORMS += \
+    desktop.ui \
     mainwindow.ui
 
 # Default rules for deployment.

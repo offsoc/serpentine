@@ -1,14 +1,13 @@
 #include "clientfetcher.h"
-#include "clientfetcherthread.h"
 
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTimer>
 
-ClientFetcher::ClientFetcher(QObject *parent, QString apiAddress, QTableWidget *table) : QObject(parent)
+ClientFetcher::ClientFetcher(QString apiAddress, QTableWidget *table, QObject *parent) : QObject(parent)
 {
     this->apiAddress = apiAddress;
     this->table = table;
@@ -17,7 +16,7 @@ ClientFetcher::ClientFetcher(QObject *parent, QString apiAddress, QTableWidget *
 }
 
 void ClientFetcher::run() {
-    QObject::connect(this->networkManager, &QNetworkAccessManager::finished, this, [=](QNetworkReply *reply) {
+    connect(this->networkManager, &QNetworkAccessManager::finished, this, [=](QNetworkReply *reply) {
         if (reply->error()) {
             qDebug() << reply->errorString();
             return;
@@ -36,9 +35,10 @@ void ClientFetcher::run() {
         }
     });
 
-    ClientFetcherThread *thread = new ClientFetcherThread(this);
-    QObject::connect(thread, &ClientFetcherThread::fetchClientsTimerExpired, this, &ClientFetcher::fetchClients);
-    thread->start();
+    QTimer *timer = new QTimer(this);
+    timer->setSingleShot(false);
+    connect(timer, &QTimer::timeout, this, &ClientFetcher::fetchClients);
+    timer->start(3000);
 }
 
 void ClientFetcher::fetchClients() {

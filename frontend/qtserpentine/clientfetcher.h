@@ -9,15 +9,15 @@ class ClientFetcher : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClientFetcher(QObject *parent = nullptr, QString apiAddress = "127.0.0.1:8080", QTableWidget *table = nullptr);
-    QString apiAddress;
-    QNetworkAccessManager *networkManager;
+    explicit ClientFetcher(QString apiAddress, QTableWidget *table, QObject *parent = nullptr);
 
 public slots:
     void fetchClients();
 
 private:
     QTableWidget *table;
+    QString apiAddress;
+    QNetworkAccessManager *networkManager;
     void run();
 };
 
