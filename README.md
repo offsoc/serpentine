@@ -24,7 +24,7 @@ Functionalities:
 
 `server` holds the RESTful server portion made with Java and Spring.
 
-`frontend` can hold any number of frontends that consume the RESTful API , currently holds `goserpentine` terminal client and `qtserpentine` GUI client.
+`frontend` can hold any number of frontends that consume the RESTful API, currently holds `goserpentine` terminal client and `qtserpentine` GUI client.
 
 #### Build
 Build `server` with `mvn package` and then run the JAR with 2 arguments, first being the client-listening port and second the port RESTful API will be served at. Example: `java -jar target/serpentine-0.1.0.jar 2222 8080`
