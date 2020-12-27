@@ -37,6 +37,8 @@ Build `goserpentine` `frontend` with `go build` and run the resulting executable
 Build `qtserpentine` by installing Qt Creator and building through that. Provide `QTSERPENTINE_API_ADDRESS` environment variable that points to the API server.
 
 #### API
+(To learn more about the endpoints and input parameters check the controllers in server code)
+
 `/client` GET --> Returns list of currently connected clients (clients that pinged in the last 10 seconds)
 
 `/client` POST --> Changes name associated with a client
