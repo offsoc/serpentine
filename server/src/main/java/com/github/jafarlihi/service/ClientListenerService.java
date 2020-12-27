@@ -94,6 +94,8 @@ public class ClientListenerService {
                     JSONObject contentJson = new JSONObject(content);
                     if (contentJson.has("computerName"))
                         clients.get(finalName).computerName = contentJson.getString("computerName");
+                    if (contentJson.has("stubName"))
+                        clients.get(finalName).stubName = contentJson.getString("stubName");
                     if (contentJson.has("activeWindowTitle"))
                         clients.get(finalName).activeWindowTitle = contentJson.getString("activeWindowTitle");
                 }, (error) -> {});

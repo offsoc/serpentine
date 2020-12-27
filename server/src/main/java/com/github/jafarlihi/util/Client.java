@@ -10,6 +10,7 @@ public class Client {
     public Socket socket;
     public Observable<String> observable;
     public String computerName;
+    public String stubName;
     public String activeWindowTitle;
     public LocalDateTime lastSeen;
     private Long requestID;
