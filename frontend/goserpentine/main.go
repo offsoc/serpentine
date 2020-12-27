@@ -179,6 +179,7 @@ type Client struct {
 	Name              string
 	Address           string
 	ComputerName      string
+	StubName          string
 	ActiveWindowTitle string
 }
 
@@ -197,9 +198,9 @@ func doShowClients() {
 	var clients []Client
 	json.Unmarshal(body, &clients)
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Address", "Computer Name", "Active Window Title"})
+	table.SetHeader([]string{"Name", "Address", "Computer Name", "Stub Name", "Active Window Title"})
 	for _, c := range clients {
-		table.Append([]string{c.Name, c.Address, c.ComputerName, c.ActiveWindowTitle})
+		table.Append([]string{c.Name, c.Address, c.ComputerName, c.StubName, c.ActiveWindowTitle})
 	}
 	table.Render()
 }

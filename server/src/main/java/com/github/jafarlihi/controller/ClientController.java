@@ -33,6 +33,7 @@ public class ClientController {
             clientObject.put("name", client.getKey());
             clientObject.put("address", ((InetSocketAddress) client.getValue().socket.getRemoteSocketAddress()).getAddress());
             clientObject.put("computerName", client.getValue().computerName);
+            clientObject.put("stubName", client.getValue().stubName);
             clientObject.put("activeWindowTitle", client.getValue().activeWindowTitle);
             result.put(clientObject);
         }

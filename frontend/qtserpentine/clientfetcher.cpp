@@ -31,7 +31,7 @@ void ClientFetcher::run() {
             this->table->setItem(this->table->rowCount() - 1, 0, new QTableWidgetItem(object["name"].toString()));
             this->table->setItem(this->table->rowCount() - 1, 1, new QTableWidgetItem(object["address"].toString()));
             this->table->setItem(this->table->rowCount() - 1, 2, new QTableWidgetItem(object["computerName"].toString()));
-            //this->table->setItem(this->table->rowCount() - 1, 3, new QTableWidgetItem(object["stubName"].toString()));
+            this->table->setItem(this->table->rowCount() - 1, 3, new QTableWidgetItem(object["stubName"].toString()));
             this->table->setItem(this->table->rowCount() - 1, 4, new QTableWidgetItem(object["activeWindowTitle"].toString()));
         }
     });
