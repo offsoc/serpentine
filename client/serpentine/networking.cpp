@@ -40,7 +40,7 @@ void Networking::runPinger(asio::io_service* ios, asio::ip::tcp::socket* serverS
 	json::json ping;
 	ping["type"] = RequestType::PING;
 	ping["computerName"] = std::string(userNameConverted) + "@" + std::string(computerNameConverted);
-    ping["stubName"] = STUB_NAME;
+	ping["stubName"] = STUB_NAME;
 
 	asio::ip::tcp::resolver::query resolverQuery(SERVER_ADDRESS, SERVER_PORT, asio::ip::tcp::resolver::query::numeric_service);
 	asio::ip::tcp::resolver resolver(*ios);

@@ -11,6 +11,7 @@
 #include <tchar.h>
 
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow) {
+#if STARTUP == 1
 	wchar_t currentPath[MAX_PATH];
 	GetModuleFileName(NULL, currentPath, MAX_PATH);
 	std::wstring currentPathWString(currentPath);
@@ -40,6 +41,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		CloseHandle(pi.hThread);
 		exit(0);
 	}
+#endif
 
 	CreateMutexA(0, FALSE, MUTEX);
 	if (GetLastError() == ERROR_ALREADY_EXISTS)
