@@ -7,7 +7,7 @@
 class Controller {
 private:
 	Controller();
-	static void sendErrorResponse(long long, std::string error);
+	static void sendErrorResponse(long long, const std::string& error);
 public:
 	static Controller& getInstance();
 	static void dispatch(std::string message);

@@ -69,7 +69,7 @@ void Controller::dispatch(std::string message) {
 	}
 }
 
-void Controller::sendErrorResponse(long long id, std::string message) {
+void Controller::sendErrorResponse(long long id, const std::string& message) {
 	json::json response;
 	response["id"] = id;
 	response["error"] = message;
