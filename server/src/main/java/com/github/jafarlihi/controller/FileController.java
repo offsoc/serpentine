@@ -26,13 +26,7 @@ public class FileController {
         request.put("id", requestID);
         request.put("type", RequestType.GET_FILE.getValue());
         request.put("filename", new JSONObject(body).getString("filename"));
-        try {
-            PrintWriter out = new PrintWriter(client.socket.getOutputStream(), true);
-            out.println(request.toString());
-        } catch (IOException ex) {
-            result.setResult(new JSONObject().put("error", "Failed to write to the socket, exception: " + ex).toString());
-            return result;
-        }
+
         Runnable task = () -> {
             client.observable.subscribe((response) -> {
                 JSONObject responseJson = new JSONObject(response);
@@ -44,6 +38,15 @@ public class FileController {
         };
         Thread thread = new Thread(task);
         thread.start();
+
+        try {
+            PrintWriter out = new PrintWriter(client.socket.getOutputStream(), true);
+            out.println(request.toString());
+           } catch (IOException ex) {
+            result.setResult(new JSONObject().put("error", "Failed to write to the socket, exception: " + ex).toString());
+            return result;
+        }
+
         return result;
     }
 

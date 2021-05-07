@@ -69,7 +69,7 @@ void Controller::dispatch(std::string message) {
 	}
 }
 
-void Controller::sendErrorResponse(std::string id, std::string message) {
+void Controller::sendErrorResponse(long long id, const std::string& message) {
 	json::json response;
 	response["id"] = id;
 	response["error"] = message;
@@ -89,7 +89,16 @@ void Controller::getFile(json::json message) {
 	}
 
 	std::string fileString((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
-	std::string fileBase64String = base64_encode(fileString);
+	std::string fileBase64String = "";
+	try
+	{
+		fileBase64String = base64_encode(fileString);
+	}
+	catch (const std::exception& e)
+	{
+		sendErrorResponse(message["id"], e.what());
+		return;
+	}
 
 	json::json response;
 	response["id"] = message["id"];
@@ -107,8 +116,16 @@ void Controller::putFile(json::json message) {
 		return;
 	}
 
-	// TODO: Malformed input leads to crash
-	std::string decodedFile = base64_decode(message["file"]);
+	std::string decodedFile = "";
+	try
+	{
+		decodedFile = base64_decode(message["file"]);
+	}
+	catch (const std::exception& e)
+	{
+		sendErrorResponse(message["id"], e.what());
+		return;
+	}
 
 	std::filesystem::path filePath(message["filename"].get<std::string>());
 	std::error_code ec;
