@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"github.com/olekukonko/tablewriter"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -88,6 +89,12 @@ func doCreateShellSession(clientName string, shellAddress string, shellPort stri
 		return
 	}
 	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	log.Info(string(body))
 }
 
 func doPutFile(clientName string, localFilePath string, remoteFilePath string) {
@@ -118,6 +125,12 @@ func doPutFile(clientName string, localFilePath string, remoteFilePath string) {
 		return
 	}
 	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	log.Info(string(body))
 }
 
 type GetFileResponse struct {
@@ -173,6 +186,12 @@ func doChangeClientName(oldName string, newName string) {
 		return
 	}
 	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	log.Info(string(body))
 }
 
 type Client struct {
