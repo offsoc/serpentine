@@ -1,5 +1,4 @@
 # serpentine
-**Disclaimer:** serpentine is created for educational and research purposes, and is only intended to be employed in legal red team operations. Malicious and illegal use is not condoned and author/contributors do not take any responsbility for any damage caused by malicious actors using any software presented herein.
 
 serpentine is a Windows RAT (Remote Administration Tool) that lets you interact with the clients using a multiplatform RESTful C2 server.
 
